@@ -80,7 +80,27 @@ section:last-of-type{border-bottom:0}
 }
 
 /* flow diagram */
-.flow{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;align-items:center;gap:0;margin-top:24px}
+.flow{display:grid;grid-template-columns:1fr 40px 1.25fr;align-items:stretch;gap:0;margin-top:24px}
+.flow > .arrow{align-self:center}
+.zone{border-radius:var(--radius-lg);padding:14px;display:flex;flex-direction:column;gap:12px}
+.zone-buk{background:var(--blue-soft);border:2px dashed var(--blue)}
+.zone-client{background:var(--yellow-soft);border:3px solid var(--yellow)}
+.zone-row{display:grid;grid-template-columns:1fr 40px 1fr;align-items:center;flex:1}
+.zone-label{margin:0;font-size:.9rem;color:var(--muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.who{display:inline-block;font-weight:700;font-size:.85rem;padding:3px 12px;border-radius:999px;color:#fff}
+.who-buk{background:var(--blue)}
+.who-client{background:var(--ink);color:var(--bg)}
+.node.node-buk{border-color:var(--blue)}
+.who-chip{display:inline-block;font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.who-chip.buk{background:var(--blue);color:#fff}
+.who-chip.client{background:var(--yellow);color:#0C2340}
+.who-chip.both{border:2px solid var(--blue);color:var(--ink)}
+.step .wholine{display:block;font-size:.75rem;font-weight:700;margin-top:4px}
+.step .wholine.buk{color:var(--blue)}
+.step .wholine.client{color:var(--ink);background:var(--yellow);border-radius:999px;padding:0 8px;display:inline-block}
+.step .wholine.both{color:var(--muted)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .who-buk,:root:not([data-theme="light"]) .who-chip.buk{color:#0A1628}}
+:root[data-theme="dark"] .who-buk,:root[data-theme="dark"] .who-chip.buk{color:#0A1628}
 .node{background:var(--surface);border:2px solid var(--line);border-radius:var(--radius-lg);padding:14px 16px;cursor:pointer;text-align:left;font:inherit;color:var(--ink);width:100%}
 .node b{display:block;font-family:var(--display);font-size:1.05rem}
 .node small{color:var(--muted);font-size:.85rem}
@@ -96,6 +116,7 @@ section:last-of-type{border-bottom:0}
   .arrow{width:2px;height:24px;margin:0 auto}
   .arrow::after{right:-5px;top:auto;bottom:-2px;border:6px solid transparent;border-top:8px solid var(--muted)}
   .branch{grid-template-columns:1fr;gap:10px}
+  .zone-row{grid-template-columns:1fr;gap:10px}
 }
 
 /* tabs */
@@ -197,12 +218,19 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
 <section id="caminho">
   <div class="wrap">
     <h2>Para onde vão os dados</h2>
-    <p class="prose">A empresa informa tudo em um só lugar, o eSocial. A partir dele, o governo calcula os impostos e os entrega prontos em dois sistemas diferentes. Toque em cada caixa.</p>
+    <p class="prose">A Buk é integrada ao eSocial: tudo o que você lança na folha é enviado automaticamente. Depois do fechamento, o governo calcula os impostos e os entrega prontos em dois sistemas, onde a conferência e o pagamento ficam com você. Toque em cada caixa.</p>
     <div class="flow" id="flow">
-      <button class="node" data-k="empresa" type="button"><b>Empresa</b><small>Sistema de folha (ex.: Buk)</small></button>
+      <div class="zone zone-buk">
+        <p class="zone-label"><span class="who who-buk">Feito pela Buk</span> Envio automático ao eSocial</p>
+        <div class="zone-row">
+          <button class="node node-buk" data-k="empresa" type="button"><b>Buk</b><small>Folha integrada ao eSocial</small></button>
+          <div class="arrow" aria-hidden="true"></div>
+          <button class="node gov" data-k="esocial" type="button"><b>eSocial</b><small>Recebe os eventos</small></button>
+        </div>
+      </div>
       <div class="arrow" aria-hidden="true"></div>
-      <button class="node gov" data-k="esocial" type="button"><b>eSocial</b><small>Recebe os eventos</small></button>
-      <div class="arrow" aria-hidden="true"></div>
+      <div class="zone zone-client">
+      <p class="zone-label"><span class="who who-client">Feito por você</span> Conferir, transmitir e pagar</p>
       <div class="branches">
         <div class="branch">
           <button class="node gov" data-k="ecac" type="button"><b>e-CAC / DCTFWeb</b><small>INSS e Imposto de Renda</small></button>
@@ -215,6 +243,7 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
           <button class="node" data-k="guia" type="button"><b>Guia FGTS (Pix)</b><small>Paga até o dia 20</small></button>
         </div>
       </div>
+      </div>
     </div>
     <div class="panel flow-note" id="flowPanel" aria-live="polite"></div>
   </div>
@@ -223,7 +252,7 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
 <section id="sistemas">
   <div class="wrap">
     <h2>Os três sistemas</h2>
-    <p class="prose">Cada sistema tem um papel. A empresa alimenta só o eSocial; nos outros dois ela confere, transmite e paga.</p>
+    <p class="prose">Cada sistema tem um papel. O eSocial é alimentado pela Buk automaticamente; no e-CAC e no FGTS Digital quem confere, transmite e paga é você.</p>
     <div class="tabs" role="tablist" aria-label="Sistemas">
       <button role="tab" aria-selected="true" aria-controls="t-esocial" id="tb-esocial" type="button">eSocial</button>
       <button role="tab" aria-selected="false" aria-controls="t-ecac" id="tb-ecac" type="button">e-CAC e DCTFWeb</button>
@@ -231,8 +260,8 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
     </div>
 
     <div class="tabpanel" role="tabpanel" id="t-esocial" aria-labelledby="tb-esocial">
-      <h3>eSocial: o cadastro oficial de cada trabalhador</h3>
-      <p class="prose">É onde a empresa informa tudo o que acontece com os funcionários: contratação, salário, férias, afastamentos, exames médicos e desligamento. Cada informação é um <b>evento</b> com um código (S-2200 é admissão, S-1200 é a folha do mês). Quem envia é o sistema de folha, automaticamente.</p>
+      <h3>eSocial: o cadastro oficial de cada trabalhador <span class="who-chip buk">Buk envia</span></h3>
+      <p class="prose">É onde a empresa informa tudo o que acontece com os funcionários: contratação, salário, férias, afastamentos, exames médicos e desligamento. Cada informação é um <b>evento</b> com um código (S-2200 é admissão, S-1200 é a folha do mês). Com a Buk, o envio é automático: você lança na folha e a integração cuida do resto.</p>
       <dl class="facts">
         <div><dt>Quem usa</dt><dd>Todo empregador, inclusive MEI com funcionário e Simples Nacional</dd></div>
         <div><dt>O que envia</dt><dd>Fatos do mês (quando acontecem) e a folha (todo mês)</dd></div>
@@ -242,7 +271,7 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
     </div>
 
     <div class="tabpanel" role="tabpanel" id="t-ecac" aria-labelledby="tb-ecac" hidden>
-      <h3>e-CAC e DCTFWeb: onde se paga INSS e Imposto de Renda</h3>
+      <h3>e-CAC e DCTFWeb: onde se paga INSS e Imposto de Renda <span class="who-chip client">Feito por você</span></h3>
       <p class="prose">O e-CAC é o portal da Receita Federal. Dentro dele fica a <b>DCTFWeb</b>, a declaração que reúne os impostos da folha. Ninguém digita valores nela: quando a empresa fecha o mês no eSocial (S-1299), a Receita monta a DCTFWeb com o INSS (S-5011) e o IRRF (S-5012). Se a empresa contrata serviços com retenção, a EFD-Reinf também entra nessa conta.</p>
       <dl class="facts">
         <div><dt>Como acessar</dt><dd>Certificado digital ou conta gov.br nível prata/ouro, com procuração quando for o contador</dd></div>
@@ -253,7 +282,7 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
     </div>
 
     <div class="tabpanel" role="tabpanel" id="t-fgts" aria-labelledby="tb-fgts" hidden>
-      <h3>FGTS Digital: o depósito do Fundo de Garantia</h3>
+      <h3>FGTS Digital: o depósito do Fundo de Garantia <span class="who-chip client">Feito por você</span></h3>
       <p class="prose">Desde 2024 o FGTS é calculado a partir do eSocial e pago no FGTS Digital, que substituiu a antiga GFIP/SEFIP. O sistema lê a remuneração de cada trabalhador (S-5003 e S-5013) e gera a guia com QR Code Pix.</p>
       <dl class="facts">
         <div><dt>Como acessar</dt><dd>Conta gov.br ou certificado digital, com procuração para terceiros</dd></div>
@@ -334,22 +363,22 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
 
   /* ---------- cycle ---------- */
   var steps=[
-    {when:'Durante o mês',what:'Informar os fatos',tag:'Mês da folha',
+    {when:'Durante o mês',what:'Informar os fatos',tag:'Mês da folha',who:'both',whoText:'Você lança na Buk, a Buk envia ao eSocial',
      text:'Tudo o que acontece com os funcionários é enviado ao eSocial conforme ocorre.',
      items:['Contratação: antes do primeiro dia de trabalho (S-2200)','Aumento, promoção ou mudança de jornada (S-2206)','Férias, licenças e afastamentos (S-2230)','Exames médicos (S-2220)','Desligamento: até 10 dias após a saída (S-2299)']},
-    {when:'Fim do mês',what:'Calcular a folha',tag:'Mês da folha',
+    {when:'Fim do mês',what:'Calcular a folha',tag:'Mês da folha',who:'both',whoText:'A Buk calcula, você confere',
      text:'Com o ponto fechado e as variáveis lançadas, o sistema calcula salário, descontos e encargos de cada pessoa.',
      items:['Horas extras, faltas, comissões e bônus lançados','Descontos de VT, plano de saúde, consignado e pensão','Conferência dos holerites antes de seguir']},
-    {when:'Até o 5º dia útil',what:'Pagar os salários',tag:'Mês seguinte',
+    {when:'Até o 5º dia útil',what:'Pagar os salários',tag:'Mês seguinte',who:'client',whoText:'Você',
      text:'O salário mensal deve ser pago até o 5º dia útil do mês seguinte (o sábado conta como dia útil).',
      items:['Gerar o arquivo de pagamento do banco','Conferir se o total pago bate com o líquido da folha','Disponibilizar os holerites']},
-    {when:'Até o dia 15',what:'Enviar e fechar no eSocial',tag:'Prazo',deadline:true,
+    {when:'Até o dia 15',what:'Enviar e fechar no eSocial',tag:'Prazo',deadline:true,who:'buk',whoText:'Buk (envio automático)',
      text:'A folha é enviada ao eSocial e o mês é fechado. É o fechamento que libera o cálculo dos impostos.',
      items:['S-1200: quanto cada pessoa ganhou','S-1210: quando foi pago','S-1299: fechamento do mês','Conferir os totalizadores devolvidos (S-5001, S-5002, S-5003)']},
-    {when:'Após o fechamento',what:'Conferir e transmitir',tag:'Mês seguinte',
+    {when:'Após o fechamento',what:'Conferir e transmitir',tag:'Mês seguinte',who:'client',whoText:'Você',
      text:'Os impostos aparecem prontos nos sistemas do governo. A empresa confere e transmite.',
      items:['e-CAC: abrir a DCTFWeb, conferir INSS e IR, transmitir e emitir o DARF','FGTS Digital: conferir os valores e emitir a guia']},
-    {when:'Até o dia 20',what:'Pagar os impostos',tag:'Prazo',deadline:true,
+    {when:'Até o dia 20',what:'Pagar os impostos',tag:'Prazo',deadline:true,who:'client',whoText:'Você',
      text:'O ciclo termina com o pagamento das guias. Atraso gera multa e juros.',
      items:['DARF de INSS e IR (gerado na DCTFWeb)','Guia do FGTS Digital (Pix)','Guardar comprovantes e recibos do mês']}
   ];
@@ -357,7 +386,7 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
   steps.forEach(function(s,i){
     var b=document.createElement('button');b.type='button';b.className='step'+(s.deadline?' deadline':'');
     b.setAttribute('role','tab');b.setAttribute('aria-selected',i===0?'true':'false');b.setAttribute('aria-controls','cyclePanel');
-    b.innerHTML='<span class="dot">'+(i+1)+'</span><span><span class="when">'+s.when+'</span><span class="what">'+s.what+'</span></span>';
+    b.innerHTML='<span class="dot">'+(i+1)+'</span><span><span class="when">'+s.when+'</span><span class="what">'+s.what+'</span><span class="wholine '+s.who+'">'+(s.who==='buk'?'Buk':s.who==='client'?'Você':'Você + Buk')+'</span></span>';
     b.addEventListener('click',function(){selectStep(i)});
     b.addEventListener('keydown',function(e){
       if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();selectStep((i+1)%steps.length,true)}
@@ -370,18 +399,18 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
     btns.forEach(function(b,j){b.setAttribute('aria-selected',j===i?'true':'false');b.tabIndex=j===i?0:-1});
     if(focus)btns[i].focus();
     var s=steps[i];
-    cyclePanel.innerHTML='<span class="tag">'+s.tag+'</span><h3>'+(i+1)+'. '+s.what+' <span style="font-weight:400;color:var(--muted)">('+s.when.toLowerCase()+')</span></h3><p>'+s.text+'</p><ul>'+s.items.map(function(t){return '<li>'+t+'</li>'}).join('')+'</ul>';
+    cyclePanel.innerHTML='<span class="tag">'+s.tag+'</span><span class="who-chip '+s.who+'">Quem faz: '+s.whoText+'</span><h3>'+(i+1)+'. '+s.what+' <span style="font-weight:400;color:var(--muted)">('+s.when.toLowerCase()+')</span></h3><p>'+s.text+'</p><ul>'+s.items.map(function(t){return '<li>'+t+'</li>'}).join('')+'</ul>';
   }
   selectStep(0);
 
   /* ---------- flow ---------- */
   var flowInfo={
-    empresa:['Empresa e sistema de folha','A empresa lança as informações no sistema de folha (admissões, férias, ponto, variáveis). O sistema transforma tudo em eventos do eSocial e envia automaticamente.'],
+    empresa:['Buk','Você lança as informações na Buk (admissões, férias, ponto, variáveis). Como a Buk é integrada ao eSocial, ela transforma tudo em eventos e envia automaticamente, sem arquivo para baixar nem portal para acessar.'],
     esocial:['eSocial','Recebe os eventos, valida e devolve um recibo para cada um. Quando o mês é fechado (S-1299), calcula os totais de INSS e IR (S-5011 e S-5012) e de FGTS (S-5013) e os repassa para a Receita Federal e para o FGTS Digital.'],
-    ecac:['e-CAC / DCTFWeb','A Receita Federal monta a DCTFWeb com os valores vindos do eSocial (e da EFD-Reinf, se houver serviços com retenção). A empresa ou o contador entra no e-CAC, confere, transmite a declaração e emite o DARF.'],
-    darf:['DARF','Guia de pagamento de INSS e Imposto de Renda. Vence no dia 20 do mês seguinte à competência; se não for dia útil, paga-se no dia útil anterior.'],
-    fgts:['FGTS Digital','Lê a remuneração de cada trabalhador no eSocial e calcula o depósito de FGTS. A empresa confere e emite a guia. Na rescisão, a guia rescisória também sai daqui.'],
-    guia:['Guia do FGTS','Paga por Pix até o dia 20 do mês seguinte. O valor cai na conta de FGTS de cada trabalhador na Caixa.']
+    ecac:['e-CAC / DCTFWeb: feito por você','A Receita Federal monta a DCTFWeb com os valores vindos do eSocial (e da EFD-Reinf, se houver serviços com retenção). Você ou seu contador entra no e-CAC, confere, transmite a declaração e emite o DARF. Essa etapa não é feita pela Buk.'],
+    darf:['DARF: feito por você','Guia de pagamento de INSS e Imposto de Renda. Vence no dia 20 do mês seguinte à competência; se não for dia útil, paga-se no dia útil anterior.'],
+    fgts:['FGTS Digital: feito por você','Lê a remuneração de cada trabalhador no eSocial e calcula o depósito de FGTS. Você acessa o sistema, confere e emite a guia. Na rescisão, a guia rescisória também sai daqui. Essa etapa não é feita pela Buk.'],
+    guia:['Guia do FGTS: feito por você','Paga por Pix até o dia 20 do mês seguinte. O valor cai na conta de FGTS de cada trabalhador na Caixa.']
   };
   var flowPanel=document.getElementById('flowPanel'), nodes=document.querySelectorAll('#flow .node');
   function selectNode(k){
