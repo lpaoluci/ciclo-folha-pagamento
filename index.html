@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ciclo da folha de pagamento: eSocial, e-CAC e FGTS Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F9; --surface:#FFFFFF; --ink:#0C2340; --muted:#4A5C73; --line:#D3DCE7;
+  --blue:#1351B4; --blue-soft:#E3ECFA; --yellow:#FFCD07; --yellow-soft:#FFF6CC; --green:#168821; --green-soft:#E3F3E5;
+  --radius-lg:14px; --radius-sm:6px;
+  --body:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --display:'Bricolage Grotesque','Atkinson Hyperlegible',system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1628; --surface:#12233B; --ink:#E8EEF6; --muted:#A3B3C7; --line:#26405F;
+    --blue:#7FA8F0; --blue-soft:#18315A; --yellow:#FFD84D; --yellow-soft:#3A3212; --green:#6CCB78; --green-soft:#15331C;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1628; --surface:#12233B; --ink:#E8EEF6; --muted:#A3B3C7; --line:#26405F;
+  --blue:#7FA8F0; --blue-soft:#18315A; --yellow:#FFD84D; --yellow-soft:#3A3212; --green:#6CCB78; --green-soft:#15331C;
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:2px;border-radius:4px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0 0 .5em}
+h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:700;letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,3.2vw,2rem);font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0 0 1em}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+.prose{max-width:68ch}
+
+/* nav */
+nav.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--surface);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:10px;padding-bottom:10px;align-items:center}
+nav.top a{white-space:nowrap;text-decoration:none;color:var(--muted);padding:6px 12px;border-radius:999px;font-size:.92rem}
+nav.top a:hover{background:var(--blue-soft);color:var(--ink)}
+nav.top .brand{font-family:var(--display);font-weight:700;color:var(--ink);margin-right:8px;padding-left:0}
+.theme-btn{margin-left:auto;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:.88rem;cursor:pointer;white-space:nowrap}
+
+section{padding:56px 0;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+.lead{font-size:1.15rem;color:var(--muted)}
+
+/* hero */
+.hero{padding:48px 0 40px}
+.hero p.lead{max-width:60ch}
+
+/* timeline (sequence → numbered) */
+.cycle{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin-top:28px;position:relative}
+.cycle::before{content:"";position:absolute;left:8%;right:8%;top:22px;height:4px;background:var(--line);border-radius:2px}
+.step{position:relative;background:none;border:0;padding:0 4px;text-align:center;cursor:pointer;color:var(--ink);font:inherit}
+.step .dot{display:grid;place-items:center;width:48px;height:48px;margin:0 auto 10px;border-radius:50%;background:var(--surface);border:3px solid var(--line);font-family:var(--display);font-weight:700;font-size:1.1rem;position:relative;transition:background .2s,border-color .2s}
+.step .when{display:block;font-size:.8rem;color:var(--muted)}
+.step .what{display:block;font-weight:700;font-size:.95rem;line-height:1.25}
+.step.deadline .dot{border-color:var(--yellow)}
+.step[aria-selected="true"] .dot{background:var(--blue);border-color:var(--blue);color:#fff}
+.panel{margin-top:24px;background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--blue);border-radius:var(--radius-sm);padding:20px 24px}
+.panel h3{margin-bottom:.3em}
+.panel ul{margin:.4em 0 0;padding-left:1.2em}
+.tag{display:inline-block;font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--yellow-soft);color:var(--ink);margin-bottom:8px}
+@media (max-width:760px){
+  .cycle{grid-template-columns:1fr;gap:10px}
+  .cycle::before{left:22px;right:auto;top:10px;bottom:10px;width:4px;height:auto}
+  .step{display:grid;grid-template-columns:48px 1fr;gap:14px;text-align:left;align-items:center}
+  .step .dot{margin:0}
+}
+
+/* flow diagram */
+.flow{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;align-items:center;gap:0;margin-top:24px}
+.node{background:var(--surface);border:2px solid var(--line);border-radius:var(--radius-lg);padding:14px 16px;cursor:pointer;text-align:left;font:inherit;color:var(--ink);width:100%}
+.node b{display:block;font-family:var(--display);font-size:1.05rem}
+.node small{color:var(--muted);font-size:.85rem}
+.node[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft)}
+.node.gov{border-style:solid;border-color:var(--blue)}
+.arrow{height:2px;background:var(--muted);position:relative;margin:0 4px}
+.arrow::after{content:"";position:absolute;right:-1px;top:-5px;border:6px solid transparent;border-left:8px solid var(--muted)}
+.branches{display:grid;gap:14px}
+.branch{display:grid;grid-template-columns:1fr 40px 1fr;align-items:center}
+.flow-note{margin-top:20px}
+@media (max-width:860px){
+  .flow{grid-template-columns:1fr;gap:10px}
+  .arrow{width:2px;height:24px;margin:0 auto}
+  .arrow::after{right:-5px;top:auto;bottom:-2px;border:6px solid transparent;border-top:8px solid var(--muted)}
+  .branch{grid-template-columns:1fr;gap:10px}
+}
+
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:20px 0 0}
+.tabs button{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 16px;border-radius:999px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tabpanel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px;margin-top:14px}
+.tabpanel[hidden]{display:none}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 28px;margin-top:12px}
+.facts div{border-top:3px solid var(--blue);padding-top:8px}
+.facts dt{font-weight:700}
+.facts dd{margin:0;color:var(--muted)}
+dl{margin:0}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:24px;margin-top:20px;align-items:start}
+.calc label{font-weight:700;display:block;margin-bottom:6px}
+.calc select{font:inherit;width:100%;padding:10px;border-radius:var(--radius-sm);border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+.dates{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.dates li{display:grid;grid-template-columns:120px 1fr;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 16px;align-items:center}
+.dates .d{font-family:var(--display);font-weight:700;font-size:1.25rem}
+.dates .d small{display:block;font-family:var(--body);font-weight:400;font-size:.8rem;color:var(--muted)}
+.dates .hl{border-left:6px solid var(--yellow)}
+@media (max-width:700px){.calc{grid-template-columns:1fr}.dates li{grid-template-columns:1fr;gap:2px}}
+
+/* events */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+.filters button{font:inherit;border:2px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 14px;border-radius:999px;cursor:pointer}
+.filters button[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft);font-weight:700}
+.filters input{font:inherit;flex:1;min-width:180px;padding:7px 14px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.ev{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px}
+.ev .code{font-family:var(--display);font-weight:700;font-size:1.3rem}
+.ev .kind{font-size:.8rem;font-weight:700;padding:2px 9px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.ev .kind.m{background:var(--blue-soft)}
+.ev .kind.s{background:var(--yellow-soft)}
+.ev h3{margin:.3em 0 .2em;font-family:var(--body)}
+.ev p{margin:0 0 .4em;color:var(--muted);font-size:.95rem}
+.ev .prazo{font-size:.9rem}
+.empty{color:var(--muted);padding:12px 0}
+
+/* checklist */
+.progress{display:flex;align-items:center;gap:14px;margin:18px 0}
+.bar{flex:1;height:12px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar span{display:block;height:100%;width:0;background:var(--green);transition:width .3s}
+.progress output{font-weight:700;min-width:5ch;text-align:right}
+.check-group{margin-bottom:20px}
+.check-group h3{margin-bottom:.4em}
+.check-group label{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer}
+.check-group label:hover{background:var(--blue-soft)}
+.check-group input{width:20px;height:20px;margin-top:3px;accent-color:var(--green);flex:none}
+.check-group input:checked + span{color:var(--muted);text-decoration:line-through}
+.ghost{font:inherit;border:2px solid var(--line);background:transparent;color:var(--ink);padding:6px 14px;border-radius:999px;cursor:pointer}
+.done-msg{background:var(--green-soft);border-radius:var(--radius-sm);padding:12px 16px;font-weight:700}
+.done-msg[hidden]{display:none}
+
+/* glossary */
+.gloss{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:8px 24px}
+details{border-bottom:1px solid var(--line);padding:10px 0}
+summary{cursor:pointer;font-weight:700;list-style-position:outside}
+details p{margin:.4em 0 0;color:var(--muted)}
+
+footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+
+<nav class="top" aria-label="Seções">
+  <div class="wrap">
+    <a class="brand" href="#inicio">Ciclo da folha</a>
+    <a href="#ciclo">O mês</a>
+    <a href="#caminho">Para onde vão os dados</a>
+    <a href="#sistemas">Os sistemas</a>
+    <a href="#prazos">Calcular prazos</a>
+    <a href="#eventos">Eventos</a>
+    <a href="#checklist">Checklist</a>
+    <a href="#glossario">Glossário</a>
+    <button class="theme-btn" id="themeBtn" type="button">Tema escuro</button>
+  </div>
+</nav>
+
+<main>
+<header class="hero" id="inicio">
+  <div class="wrap">
+    <h1>Como a folha de pagamento chega ao governo</h1>
+    <p class="lead">Um guia para quem não é da área: o que a empresa informa no eSocial, como esses dados viram impostos no e-CAC e no FGTS Digital, e o que fazer em cada etapa do mês.</p>
+  </div>
+</header>
+
+<section id="ciclo">
+  <div class="wrap">
+    <h2>O ciclo de um mês</h2>
+    <p class="prose">A folha de um mês (a <b>competência</b>) só termina no mês seguinte, quando os impostos são pagos. Toque em cada etapa para ver o que acontece.</p>
+    <div class="cycle" role="tablist" aria-label="Etapas do ciclo da folha" id="cycle"></div>
+    <div class="panel" id="cyclePanel" role="tabpanel" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="caminho">
+  <div class="wrap">
+    <h2>Para onde vão os dados</h2>
+    <p class="prose">A empresa informa tudo em um só lugar, o eSocial. A partir dele, o governo calcula os impostos e os entrega prontos em dois sistemas diferentes. Toque em cada caixa.</p>
+    <div class="flow" id="flow">
+      <button class="node" data-k="empresa" type="button"><b>Empresa</b><small>Sistema de folha (ex.: Buk)</small></button>
+      <div class="arrow" aria-hidden="true"></div>
+      <button class="node gov" data-k="esocial" type="button"><b>eSocial</b><small>Recebe os eventos</small></button>
+      <div class="arrow" aria-hidden="true"></div>
+      <div class="branches">
+        <div class="branch">
+          <button class="node gov" data-k="ecac" type="button"><b>e-CAC / DCTFWeb</b><small>INSS e Imposto de Renda</small></button>
+          <div class="arrow" aria-hidden="true"></div>
+          <button class="node" data-k="darf" type="button"><b>DARF</b><small>Pago até o dia 20</small></button>
+        </div>
+        <div class="branch">
+          <button class="node gov" data-k="fgts" type="button"><b>FGTS Digital</b><small>Depósito do FGTS</small></button>
+          <div class="arrow" aria-hidden="true"></div>
+          <button class="node" data-k="guia" type="button"><b>Guia FGTS (Pix)</b><small>Paga até o dia 20</small></button>
+        </div>
+      </div>
+    </div>
+    <div class="panel flow-note" id="flowPanel" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="sistemas">
+  <div class="wrap">
+    <h2>Os três sistemas</h2>
+    <p class="prose">Cada sistema tem um papel. A empresa alimenta só o eSocial; nos outros dois ela confere, transmite e paga.</p>
+    <div class="tabs" role="tablist" aria-label="Sistemas">
+      <button role="tab" aria-selected="true" aria-controls="t-esocial" id="tb-esocial" type="button">eSocial</button>
+      <button role="tab" aria-selected="false" aria-controls="t-ecac" id="tb-ecac" type="button">e-CAC e DCTFWeb</button>
+      <button role="tab" aria-selected="false" aria-controls="t-fgts" id="tb-fgts" type="button">FGTS Digital</button>
+    </div>
+
+    <div class="tabpanel" role="tabpanel" id="t-esocial" aria-labelledby="tb-esocial">
+      <h3>eSocial: o cadastro oficial de cada trabalhador</h3>
+      <p class="prose">É onde a empresa informa tudo o que acontece com os funcionários: contratação, salário, férias, afastamentos, exames médicos e desligamento. Cada informação é um <b>evento</b> com um código (S-2200 é admissão, S-1200 é a folha do mês). Quem envia é o sistema de folha, automaticamente.</p>
+      <dl class="facts">
+        <div><dt>Quem usa</dt><dd>Todo empregador, inclusive MEI com funcionário e Simples Nacional</dd></div>
+        <div><dt>O que envia</dt><dd>Fatos do mês (quando acontecem) e a folha (todo mês)</dd></div>
+        <div><dt>Prazo da folha</dt><dd>Fechar até o dia 15 do mês seguinte (S-1299)</dd></div>
+        <div><dt>O que devolve</dt><dd>Totalizadores com o INSS, IR e FGTS calculados</dd></div>
+      </dl>
+    </div>
+
+    <div class="tabpanel" role="tabpanel" id="t-ecac" aria-labelledby="tb-ecac" hidden>
+      <h3>e-CAC e DCTFWeb: onde se paga INSS e Imposto de Renda</h3>
+      <p class="prose">O e-CAC é o portal da Receita Federal. Dentro dele fica a <b>DCTFWeb</b>, a declaração que reúne os impostos da folha. Ninguém digita valores nela: quando a empresa fecha o mês no eSocial (S-1299), a Receita monta a DCTFWeb com o INSS (S-5011) e o IRRF (S-5012). Se a empresa contrata serviços com retenção, a EFD-Reinf também entra nessa conta.</p>
+      <dl class="facts">
+        <div><dt>Como acessar</dt><dd>Certificado digital ou conta gov.br nível prata/ouro, com procuração quando for o contador</dd></div>
+        <div><dt>O que fazer</dt><dd>Conferir os valores com a folha, transmitir a declaração e emitir o DARF</dd></div>
+        <div><dt>Pagamento</dt><dd>DARF até o dia 20 do mês seguinte</dd></div>
+        <div><dt>Deu diferença?</dt><dd>Corrigir no eSocial (reabrir com S-1298), fechar de novo e retificar a DCTFWeb</dd></div>
+      </dl>
+    </div>
+
+    <div class="tabpanel" role="tabpanel" id="t-fgts" aria-labelledby="tb-fgts" hidden>
+      <h3>FGTS Digital: o depósito do Fundo de Garantia</h3>
+      <p class="prose">Desde 2024 o FGTS é calculado a partir do eSocial e pago no FGTS Digital, que substituiu a antiga GFIP/SEFIP. O sistema lê a remuneração de cada trabalhador (S-5003 e S-5013) e gera a guia com QR Code Pix.</p>
+      <dl class="facts">
+        <div><dt>Como acessar</dt><dd>Conta gov.br ou certificado digital, com procuração para terceiros</dd></div>
+        <div><dt>Guia mensal</dt><dd>Paga até o dia 20 do mês seguinte</dd></div>
+        <div><dt>Rescisão</dt><dd>Guia rescisória emitida no próprio FGTS Digital, paga até 10 dias após o desligamento</dd></div>
+        <div><dt>Valor</dt><dd>8% da remuneração (2% para aprendiz)</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section id="prazos">
+  <div class="wrap">
+    <h2>Calcular os prazos de um mês</h2>
+    <p class="prose">Escolha a competência e veja as datas-limite. Quando o prazo cai em fim de semana, ele é antecipado para o dia útil anterior.</p>
+    <div class="calc">
+      <div>
+        <label for="comp">Competência (mês da folha)</label>
+        <select id="comp"></select>
+        <p style="font-size:.88rem;color:var(--muted);margin-top:10px">Feriados não são considerados. Confira o calendário local antes de usar as datas.</p>
+      </div>
+      <ul class="dates" id="dates" aria-live="polite"></ul>
+    </div>
+  </div>
+</section>
+
+<section id="eventos">
+  <div class="wrap">
+    <h2>Os eventos do dia a dia</h2>
+    <p class="prose">Para uma empresa simples, já com cadastros prontos, estes são os envios que aparecem na rotina.</p>
+    <div class="filters" role="group" aria-label="Filtrar eventos">
+      <button type="button" data-f="all" aria-pressed="true">Todos</button>
+      <button type="button" data-f="m" aria-pressed="false">Todo mês</button>
+      <button type="button" data-f="s" aria-pressed="false">Só quando acontece</button>
+      <input type="search" id="evSearch" placeholder="Buscar: férias, admissão, S-1200..." aria-label="Buscar evento">
+    </div>
+    <div class="events" id="events"></div>
+  </div>
+</section>
+
+<section id="checklist">
+  <div class="wrap">
+    <h2>Checklist de fechamento</h2>
+    <p class="prose">Siga na ordem. As marcações ficam salvas neste navegador até você limpar.</p>
+    <div class="progress">
+      <div class="bar" aria-hidden="true"><span id="barFill"></span></div>
+      <output id="pct">0%</output>
+      <button class="ghost" id="resetBtn" type="button">Limpar marcações</button>
+    </div>
+    <p class="done-msg" id="doneMsg" hidden>Mês fechado. Guarde os recibos e comprovantes de pagamento.</p>
+    <div id="checks"></div>
+  </div>
+</section>
+
+<section id="glossario">
+  <div class="wrap">
+    <h2>Glossário</h2>
+    <div class="gloss" id="gloss"></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Material de apoio para clientes. Prazos e regras podem mudar; confirme sempre com a legislação vigente e com a contabilidade.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* ---------- theme ---------- */
+  var root=document.documentElement, themeBtn=document.getElementById('themeBtn');
+  function isDark(){var t=root.getAttribute('data-theme');return t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches}
+  function syncThemeLabel(){themeBtn.textContent=isDark()?'Tema claro':'Tema escuro'}
+  try{var st=localStorage.getItem('guia-theme');if(st)root.setAttribute('data-theme',st)}catch(e){}
+  syncThemeLabel();
+  themeBtn.addEventListener('click',function(){var n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('guia-theme',n)}catch(e){}syncThemeLabel()});
+
+  /* ---------- cycle ---------- */
+  var steps=[
+    {when:'Durante o mês',what:'Informar os fatos',tag:'Mês da folha',
+     text:'Tudo o que acontece com os funcionários é enviado ao eSocial conforme ocorre.',
+     items:['Contratação: antes do primeiro dia de trabalho (S-2200)','Aumento, promoção ou mudança de jornada (S-2206)','Férias, licenças e afastamentos (S-2230)','Exames médicos (S-2220)','Desligamento: até 10 dias após a saída (S-2299)']},
+    {when:'Fim do mês',what:'Calcular a folha',tag:'Mês da folha',
+     text:'Com o ponto fechado e as variáveis lançadas, o sistema calcula salário, descontos e encargos de cada pessoa.',
+     items:['Horas extras, faltas, comissões e bônus lançados','Descontos de VT, plano de saúde, consignado e pensão','Conferência dos holerites antes de seguir']},
+    {when:'Até o 5º dia útil',what:'Pagar os salários',tag:'Mês seguinte',
+     text:'O salário mensal deve ser pago até o 5º dia útil do mês seguinte (o sábado conta como dia útil).',
+     items:['Gerar o arquivo de pagamento do banco','Conferir se o total pago bate com o líquido da folha','Disponibilizar os holerites']},
+    {when:'Até o dia 15',what:'Enviar e fechar no eSocial',tag:'Prazo',deadline:true,
+     text:'A folha é enviada ao eSocial e o mês é fechado. É o fechamento que libera o cálculo dos impostos.',
+     items:['S-1200: quanto cada pessoa ganhou','S-1210: quando foi pago','S-1299: fechamento do mês','Conferir os totalizadores devolvidos (S-5001, S-5002, S-5003)']},
+    {when:'Após o fechamento',what:'Conferir e transmitir',tag:'Mês seguinte',
+     text:'Os impostos aparecem prontos nos sistemas do governo. A empresa confere e transmite.',
+     items:['e-CAC: abrir a DCTFWeb, conferir INSS e IR, transmitir e emitir o DARF','FGTS Digital: conferir os valores e emitir a guia']},
+    {when:'Até o dia 20',what:'Pagar os impostos',tag:'Prazo',deadline:true,
+     text:'O ciclo termina com o pagamento das guias. Atraso gera multa e juros.',
+     items:['DARF de INSS e IR (gerado na DCTFWeb)','Guia do FGTS Digital (Pix)','Guardar comprovantes e recibos do mês']}
+  ];
+  var cycle=document.getElementById('cycle'), cyclePanel=document.getElementById('cyclePanel');
+  steps.forEach(function(s,i){
+    var b=document.createElement('button');b.type='button';b.className='step'+(s.deadline?' deadline':'');
+    b.setAttribute('role','tab');b.setAttribute('aria-selected',i===0?'true':'false');b.setAttribute('aria-controls','cyclePanel');
+    b.innerHTML='<span class="dot">'+(i+1)+'</span><span><span class="when">'+s.when+'</span><span class="what">'+s.what+'</span></span>';
+    b.addEventListener('click',function(){selectStep(i)});
+    b.addEventListener('keydown',function(e){
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();selectStep((i+1)%steps.length,true)}
+      if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();selectStep((i-1+steps.length)%steps.length,true)}
+    });
+    cycle.appendChild(b);
+  });
+  function selectStep(i,focus){
+    var btns=cycle.querySelectorAll('.step');
+    btns.forEach(function(b,j){b.setAttribute('aria-selected',j===i?'true':'false');b.tabIndex=j===i?0:-1});
+    if(focus)btns[i].focus();
+    var s=steps[i];
+    cyclePanel.innerHTML='<span class="tag">'+s.tag+'</span><h3>'+(i+1)+'. '+s.what+' <span style="font-weight:400;color:var(--muted)">('+s.when.toLowerCase()+')</span></h3><p>'+s.text+'</p><ul>'+s.items.map(function(t){return '<li>'+t+'</li>'}).join('')+'</ul>';
+  }
+  selectStep(0);
+
+  /* ---------- flow ---------- */
+  var flowInfo={
+    empresa:['Empresa e sistema de folha','A empresa lança as informações no sistema de folha (admissões, férias, ponto, variáveis). O sistema transforma tudo em eventos do eSocial e envia automaticamente.'],
+    esocial:['eSocial','Recebe os eventos, valida e devolve um recibo para cada um. Quando o mês é fechado (S-1299), calcula os totais de INSS e IR (S-5011 e S-5012) e de FGTS (S-5013) e os repassa para a Receita Federal e para o FGTS Digital.'],
+    ecac:['e-CAC / DCTFWeb','A Receita Federal monta a DCTFWeb com os valores vindos do eSocial (e da EFD-Reinf, se houver serviços com retenção). A empresa ou o contador entra no e-CAC, confere, transmite a declaração e emite o DARF.'],
+    darf:['DARF','Guia de pagamento de INSS e Imposto de Renda. Vence no dia 20 do mês seguinte à competência; se não for dia útil, paga-se no dia útil anterior.'],
+    fgts:['FGTS Digital','Lê a remuneração de cada trabalhador no eSocial e calcula o depósito de FGTS. A empresa confere e emite a guia. Na rescisão, a guia rescisória também sai daqui.'],
+    guia:['Guia do FGTS','Paga por Pix até o dia 20 do mês seguinte. O valor cai na conta de FGTS de cada trabalhador na Caixa.']
+  };
+  var flowPanel=document.getElementById('flowPanel'), nodes=document.querySelectorAll('#flow .node');
+  function selectNode(k){
+    nodes.forEach(function(n){n.setAttribute('aria-pressed',n.dataset.k===k?'true':'false')});
+    flowPanel.innerHTML='<h3>'+flowInfo[k][0]+'</h3><p style="margin:0">'+flowInfo[k][1]+'</p>';
+  }
+  nodes.forEach(function(n){n.addEventListener('click',function(){selectNode(n.dataset.k)})});
+  selectNode('esocial');
+
+  /* ---------- tabs ---------- */
+  var tabBtns=document.querySelectorAll('#sistemas [role="tab"]');
+  tabBtns.forEach(function(b,i){
+    b.addEventListener('click',function(){activateTab(i)});
+    b.addEventListener('keydown',function(e){
+      if(e.key==='ArrowRight'){e.preventDefault();activateTab((i+1)%tabBtns.length,true)}
+      if(e.key==='ArrowLeft'){e.preventDefault();activateTab((i-1+tabBtns.length)%tabBtns.length,true)}
+    });
+  });
+  function activateTab(i,focus){
+    tabBtns.forEach(function(b,j){
+      var on=j===i;b.setAttribute('aria-selected',on?'true':'false');b.tabIndex=on?0:-1;
+      document.getElementById(b.getAttribute('aria-controls')).hidden=!on;
+    });
+    if(focus)tabBtns[i].focus();
+  }
+  activateTab(0);
+
+  /* ---------- deadlines ---------- */
+  var meses=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var dias=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+  var sel=document.getElementById('comp'), datesEl=document.getElementById('dates');
+  var now=new Date();
+  for(var k=-6;k<=6;k++){
+    var d=new Date(now.getFullYear(),now.getMonth()+k,1);
+    var o=document.createElement('option');o.value=d.getFullYear()+'-'+d.getMonth();
+    o.textContent=meses[d.getMonth()].charAt(0).toUpperCase()+meses[d.getMonth()].slice(1)+' de '+d.getFullYear();
+    if(k===-1)o.selected=true;
+    sel.appendChild(o);
+  }
+  function prevBusiness(d){var x=new Date(d);while(x.getDay()===0||x.getDay()===6)x.setDate(x.getDate()-1);return x}
+  function fifthBusiness(y,m){var x=new Date(y,m,1),c=0;while(true){if(x.getDay()!==0)c++;if(c===5)return x;x.setDate(x.getDate()+1)}}
+  function fmt(d){return '<span class="d">'+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'<small>'+dias[d.getDay()]+'</small></span>'}
+  function renderDates(){
+    var p=sel.value.split('-'),y=+p[0],m=+p[1];
+    var ny=m===11?y+1:y, nm=(m+1)%12;
+    var rows=[
+      [fifthBusiness(ny,nm),'Pagamento dos salários','5º dia útil, contando sábados',false],
+      [prevBusiness(new Date(ny,nm,15)),'Envio da folha e fechamento no eSocial','S-1200, S-1210 e S-1299',true],
+      [prevBusiness(new Date(ny,nm,20)),'Pagamento do DARF (INSS e IR)','Emitido na DCTFWeb, no e-CAC',true],
+      [prevBusiness(new Date(ny,nm,20)),'Pagamento da guia do FGTS','Emitida no FGTS Digital',true]
+    ];
+    datesEl.innerHTML=rows.map(function(r){return '<li class="'+(r[3]?'hl':'')+'">'+fmt(r[0])+'<span><b>'+r[1]+'</b><br><span style="color:var(--muted);font-size:.92rem">'+r[2]+'</span></span></li>'}).join('');
+  }
+  sel.addEventListener('change',renderDates);renderDates();
+
+  /* ---------- events ---------- */
+  var evs=[
+    ['S-1200','m','Remuneração','Quanto cada funcionário ganhou no mês: salário, horas extras, descontos.','Dia 15 do mês seguinte'],
+    ['S-1210','m','Pagamentos','A data em que o dinheiro foi pago. É a base do Imposto de Renda.','Dia 15 do mês seguinte'],
+    ['S-1299','m','Fechamento','Encerra o mês e libera o cálculo dos impostos no e-CAC e no FGTS Digital.','Dia 15 do mês seguinte'],
+    ['S-2200','s','Admissão','Contratou alguém: dados pessoais, cargo, salário e jornada.','Até o dia anterior ao início'],
+    ['S-2206','s','Alteração de contrato','Aumento, promoção, mudança de cargo ou de jornada.','Dia 15 do mês seguinte'],
+    ['S-2230','s','Afastamento e férias','Férias, licença-maternidade, atestado médico, licenças.','Dia 15 do mês seguinte; doença acima de 15 dias: até o 16º dia'],
+    ['S-2220','s','Exame médico (ASO)','Exames admissional, periódico, de retorno e demissional.','Dia 15 do mês seguinte ao exame'],
+    ['S-2299','s','Desligamento','Alguém saiu: motivo, data e verbas da rescisão.','Até 10 dias após a saída'],
+    ['S-1298','s','Reabertura','Reabre um mês já fechado para corrigir um erro.','Antes de reenviar a folha corrigida']
+  ];
+  var evEl=document.getElementById('events'), evSearch=document.getElementById('evSearch'), filt='all';
+  function norm(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
+  function renderEvents(){
+    var q=norm(evSearch.value.trim());
+    var list=evs.filter(function(e){return (filt==='all'||e[1]===filt)&&(!q||norm(e.join(' ')).indexOf(q)>-1)});
+    evEl.innerHTML=list.length?list.map(function(e){
+      return '<article class="ev"><span class="code">'+e[0]+'</span><span class="kind '+e[1]+'">'+(e[1]==='m'?'Todo mês':'Quando acontece')+'</span><h3>'+e[2]+'</h3><p>'+e[3]+'</p><div class="prazo"><b>Prazo:</b> '+e[4]+'</div></article>'
+    }).join(''):'<p class="empty">Nenhum evento encontrado. Tente outro termo, como "férias" ou "S-2299".</p>';
+  }
+  document.querySelectorAll('.filters button').forEach(function(b){
+    b.addEventListener('click',function(){
+      filt=b.dataset.f;
+      document.querySelectorAll('.filters button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+      renderEvents();
+    });
+  });
+  evSearch.addEventListener('input',renderEvents);renderEvents();
+
+  /* ---------- checklist ---------- */
+  var groups=[
+    ['Antes de calcular',['Ponto fechado: horas extras, faltas e atrasos','Admissões, férias, afastamentos e desligamentos do mês lançados','Reajustes e promoções aplicados com a data certa','Comissões, bônus e descontos (VT, plano, consignado, pensão) lançados']],
+    ['Conferir a folha',['Salário de cada pessoa igual ao contrato','Admitidos e desligados com salário proporcional','Nenhum líquido negativo ou zerado sem motivo','INSS, IR e FGTS com valores coerentes com o mês anterior']],
+    ['Pagar e enviar',['Salários pagos até o 5º dia útil','Total pago no banco igual ao líquido da folha','S-1200 e S-1210 enviados ao eSocial','S-1299 enviado até o dia 15']],
+    ['Impostos',['Totalizadores do eSocial batem com a folha','DCTFWeb conferida e transmitida no e-CAC','DARF emitido e pago até o dia 20','Guia do FGTS Digital emitida e paga até o dia 20','Recibos e comprovantes arquivados']]
+  ];
+  var KEY='guia-folha-checklist', state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){state={}}
+  var checksEl=document.getElementById('checks'), total=0;
+  groups.forEach(function(g,gi){
+    var div=document.createElement('div');div.className='check-group';
+    var html='<h3>'+(gi+1)+'. '+g[0]+'</h3>';
+    g[1].forEach(function(t,ti){
+      var id='c'+gi+'-'+ti;total++;
+      html+='<label for="'+id+'"><input type="checkbox" id="'+id+'"'+(state[id]?' checked':'')+'><span>'+t+'</span></label>';
+    });
+    div.innerHTML=html;checksEl.appendChild(div);
+  });
+  var fill=document.getElementById('barFill'), pct=document.getElementById('pct'), doneMsg=document.getElementById('doneMsg');
+  function updateProgress(){
+    var n=checksEl.querySelectorAll('input:checked').length, p=Math.round(n/total*100);
+    fill.style.width=p+'%';pct.textContent=p+'%';doneMsg.hidden=n!==total;
+  }
+  checksEl.addEventListener('change',function(e){
+    if(e.target.type!=='checkbox')return;
+    state[e.target.id]=e.target.checked;
+    try{localStorage.setItem(KEY,JSON.stringify(state))}catch(err){}
+    updateProgress();
+  });
+  document.getElementById('resetBtn').addEventListener('click',function(){
+    state={};try{localStorage.removeItem(KEY)}catch(e){}
+    checksEl.querySelectorAll('input').forEach(function(i){i.checked=false});updateProgress();
+  });
+  updateProgress();
+
+  /* ---------- glossary ---------- */
+  var gl=[
+    ['Competência','O mês a que a folha se refere. A folha de outubro é a competência 10, mesmo que seja paga em novembro.'],
+    ['Evento','Cada arquivo enviado ao eSocial, identificado por um código como S-1200.'],
+    ['Rubrica','Cada linha do holerite: salário, hora extra, vale-transporte, desconto de INSS.'],
+    ['Totalizador','Resposta automática do eSocial com os valores de INSS, IR e FGTS calculados (S-5001 a S-5013).'],
+    ['Recibo','Número que comprova que o evento foi aceito pelo eSocial.'],
+    ['INSS','Contribuição para a Previdência. Uma parte é descontada do funcionário e outra é paga pela empresa.'],
+    ['IRRF','Imposto de Renda descontado do salário e repassado pela empresa à Receita Federal.'],
+    ['FGTS','Depósito mensal de 8% do salário em uma conta do trabalhador na Caixa. Não é descontado do funcionário.'],
+    ['e-CAC','Portal da Receita Federal onde a empresa acessa a DCTFWeb e emite guias.'],
+    ['DCTFWeb','Declaração que reúne o INSS e o IR da folha, montada a partir do eSocial.'],
+    ['DARF','Guia para pagar INSS e IR à Receita Federal, emitida na DCTFWeb.'],
+    ['FGTS Digital','Sistema do governo que calcula o FGTS a partir do eSocial e emite a guia de pagamento por Pix.'],
+    ['EFD-Reinf','Outra obrigação que informa retenções sobre serviços contratados. Também alimenta a DCTFWeb.'],
+    ['Certificado digital','Identidade eletrônica da empresa, usada para acessar o e-CAC e assinar envios.']
+  ];
+  document.getElementById('gloss').innerHTML=gl.map(function(g){return '<details><summary>'+g[0]+'</summary><p>'+g[1]+'</p></details>'}).join('');
+})();
+</script>
+</body>
+</html>
